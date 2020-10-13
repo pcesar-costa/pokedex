@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pokedex</title>
+        <link rel="shortcut icon" href="{{root}}/assets/images/favicon.svg" type="image/x-icon" />
+        <!-- CSS -->
+        <link rel="stylesheet" href="{{root}}/assets/css/bootstrap.css" />
+        <link rel="stylesheet" href="{{root}}/assets/vendors/simple-datatables/style.css" />
+        <link rel="stylesheet" href="{{root}}/assets/vendors/perfect-scrollbar/perfect-scrollbar.css" />
+        <link rel="stylesheet" href="{{root}}/assets/css/app.css" />
+
+        <!-- Font Awesome icons -->
+        <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js"></script>
+    </head>
+    <body>
+        <div id="app">
+            <div id="sidebar"></div>
+            <div id="main">
+                <nav class="navbar navbar-header navbar-expand navbar-light">
+                    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                        <ul class="navbar-nav d-flex align-items-center navbar-light ml-auto">
+                            <a href="#" class="nav-link dropdown-toggle nav-link-lg nav-link-user">
+                                <div class="avatar mr-1">
+                                    <img src="{{root}}/assets/images/avatar/avatar.svg" alt="" srcset="" />
+                                </div>
+                                <div class="d-none d-md-block d-lg-inline-block" type="button" id="logout-btn">
+                                    <strong>Logout</strong>
+                                </div>
+                            </a>
+                        </ul>
+                    </div>
+                </nav>
+
+                <div class="main-content container-fluid">
+                    <div class="page-title">
+                        <div class="d-flex">
+                            <div class="mr-auto p-2">
+                                <h3>Pokedex</h3>
+                                <p class="text-subtitle text-muted">
+                                    A mini-encyclopedia of Pokémon species, generations, types, and attacks.
+                                </p>
+                            </div>
+
+                            <div class="p-2">
+                                <a class="btn icon icon-left btn-primary" data-toggle="modal" class="open-AddDialog" href="#addDialogModal">
+                                    <i class="fas fa-plus-square"></i>
+                                    Add
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section class="section">
+                        <div class="card">
+                            <div class="card-body">
+                                <table class="table table-striped" id="table1">
+                                    <thead>
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>Generation</th>
+                                            <th>Types</th>
+                                            <th>Attacks</th>
+                                            <th></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for pokemon in data %}
+                                        <tr>
+                                            <td>{{pokemon.name}}</td>
+                                            <td>{{pokemon.generation}}</td>
+                                            <td>{{pokemon.types}}</td>
+                                            <td>{{pokemon.attacks}}</td>
+                                            <td class="col-1">
+                                                <a
+                                                    data-toggle="modal"
+                                                    data-id="{{pokemon._id}}"
+                                                    data-name="{{pokemon.name}}"
+                                                    data-generation="{{pokemon.generation}}"
+                                                    data-types="{{pokemon.types}}"
+                                                    data-attacks="{{pokemon.attacks}}"
+                                                    title="Add this item"
+                                                    class="open-EditDialog"
+                                                    href="#editDialogModal"
+                                                >
+                                                    <i class="fas fa-edit fa-lg mr-2"></i>
+                                                </a>
+                                                <a data-toggle="modal" data-id="{{pokemon._id}}" title="Add this item" class="open-DeleteDialog" href="#deleteDialogModal">
+                                                    <i class="fas fa-times-circle fa-lg" style="color: red;"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </section>
+
+                    <div id="deleteDialogModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Are you sure?</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Do you really want to delete this record? <b>This process cannot be undone.</b></p>
+                                    <input hidden type="text" name="in-delete-id" id="in-delete-id" value="" />
+                                    <div id="success"></div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="delete" type="button" class="btn btn-danger">Delete</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="editDialogModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Edit Pokemon</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="contactForm" name="sentMessage" novalidate="novalidate">
+                                        <div class="form-group">
+                                            <label for="pokemon-name-modal">Name</label>
+                                            <input class="form-control" id="pokemon-name-modal" type="text" required="required" placeholder="Name" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="pokemon-generation-modal">Generation</label>
+                                            <input type="number" class="form-control" id="pokemon-generation-modal" min="1" max="99" placeholder="Generation" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="pokemon-types-modal">Types</label>
+                                            <input type="text" class="form-control" id="pokemon-types-modal" placeholder="Types" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="pokemon-attacks-modal">Attacks</label>
+                                            <input type="number" class="form-control" id="pokemon-attacks-modal" min="1" placeholder="Attacks" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <input hidden class="form-control" type="text" name="edit-id" id="edit-id" value="" />
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button id="submitButton" type="submit" class="btn btn-primary">Edit</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                    <div id="success-edit"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="addDialogModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Add Pokemon</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="contactFormAdd" name="sentMessage" novalidate="novalidate">
+                                        <div class="form-group">
+                                            <label for="pokemon-name-modal">Name</label>
+                                            <input class="form-control" id="pokemon-name-addmodal" type="text" required="required" placeholder="Name" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="pokemon-generation-modal">Generation</label>
+                                            <input type="number" class="form-control" id="pokemon-generation-addmodal" min="1" max="99" placeholder="Generation" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="pokemon-types-modal">Types</label>
+                                            <input type="text" class="form-control" id="pokemon-types-addmodal" placeholder="Types" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="form-group">
+                                            <label for="pokemon-attacks-modal">Attacks</label>
+                                            <input type="number" class="form-control" id="pokemon-attacks-addmodal" min="1" placeholder="Attacks" required="required" data-validation-required-message="Required" />
+                                            <p class="help-block text-danger"></p>
+                                        </div>
+
+                                        <div class="modal-footer">
+                                            <button id="submitButtonAdd" type="submit" class="btn btn-success">Add</button>
+                                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                        </div>
+                                    </form>
+                                    <div id="success-add"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bootstrap core JS-->
+        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+        <!-- Third party plugin JS-->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+        <script src="https://cdn.rawgit.com/mgalante/jquery.redirect/master/jquery.redirect.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/js-cookie@rc/dist/js.cookie.min.js"></script>
+
+        <script src="{{root}}/assets/js/feather-icons/feather.min.js"></script>
+        <script src="{{root}}/assets/js/app.js"></script>
+
+        <script src="https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js"></script>
+        <script src="{{root}}/assets/vendors/simple-datatables/simple-datatables.js"></script>
+
+        <script src="{{root}}/assets/js/jqBootstrapValidation.js"></script>
+        <script src="{{root}}/assets/vendors/simple-datatables/script.js"></script>
+
+        <script src="{{root}}/assets/js/vendors.js"></script>
+
+        <script src="{{root}}/assets/js/main.js"></script>
+    </body>
+</html>
